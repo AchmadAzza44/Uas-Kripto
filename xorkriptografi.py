@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import time 
 
 def teks_ke_biner(teks):
     return ''.join(format(ord(char), '08b') for char in teks)
@@ -105,9 +106,16 @@ def konversi_ke_biner():
     if not teks:
         messagebox.showwarning("Peringatan", "Masukkan plaintext.")
         return
+    start_time = time.perf_counter()
     biner = teks_ke_biner(teks)
+    end_time = time.perf_counter()
+    
     entry_plain_biner.delete(0, tk.END)
     entry_plain_biner.insert(0, biner)
+
+    waktu = f"Waktu konversi ke biner: {end_time - start_time:.6f} detik"
+    messagebox.showinfo("Waktu Konversi", waktu)
+
 
 def enkripsi():
     pesan_biner = entry_plain_biner.get()
@@ -121,6 +129,15 @@ def enkripsi():
     cipher = xor_cipher(pesan_biner, kunci)
     entry_cipher_biner.delete(0, tk.END)
     entry_cipher_biner.insert(0, cipher)
+    start_time = time.perf_counter()
+    cipher = xor_cipher(pesan_biner, kunci)
+    end_time = time.perf_counter()
+
+    entry_cipher_biner.delete(0, tk.END)
+    entry_cipher_biner.insert(0, cipher)
+
+    waktu = f"Waktu enkripsi: {end_time - start_time:.6f} detik"
+    messagebox.showinfo("Waktu Enkripsi", waktu)
 
 style_label(tk.Label(frame_enkripsi, text="Plaintext:"))
 tk.Label(frame_enkripsi, text="Plaintext:", bg="#ffffff", fg="#333333", font=font_label).pack(anchor="w", pady=(10,3))
@@ -169,6 +186,16 @@ def dekripsi():
     hasil = biner_ke_teks(decrypted_biner)
     entry_hasil_teks.delete(0, tk.END)
     entry_hasil_teks.insert(0, hasil)
+    start_time = time.perf_counter()
+    decrypted_biner = xor_cipher(cipher_biner, kunci)
+    hasil = biner_ke_teks(decrypted_biner)
+    end_time = time.perf_counter()
+
+    entry_hasil_teks.delete(0, tk.END)
+    entry_hasil_teks.insert(0, hasil)
+
+    waktu = f"Waktu dekripsi: {end_time - start_time:.6f} detik"
+    messagebox.showinfo("Waktu Dekripsi", waktu)
 
 style_label(tk.Label(frame_dekripsi, text="Ciphertext (biner):"))
 tk.Label(frame_dekripsi, text="Ciphertext (biner):", bg="#ffffff", fg="#333333", font=font_label).pack(anchor="w", pady=(10,3))
