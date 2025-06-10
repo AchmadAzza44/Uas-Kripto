@@ -50,6 +50,19 @@ def clear_dekripsi():
         e.delete(0, tk.END)
     time_label_dekripsi.config(text="")
 
+# Fungsi untuk menyimpan riwayat operasi
+def log_operation(operation_type, input_data, result, time_taken):
+    """Menyimpan riwayat operasi ke dalam daftar untuk ditampilkan di halaman rangkuman."""
+    history.append(f"{operation_type}: Input = {input_data}, Hasil = {result}, Waktu = {time_taken:.6f} detik")
+    update_summary()
+
+# Fungsi untuk memperbarui tampilan rangkuman
+def update_summary():
+    """Memperbarui label rangkuman dengan riwayat operasi."""
+    summary_text.delete(1.0, tk.END)
+    for entry in history:
+        summary_text.insert(tk.END, entry + "\n")
+
 # === BAGIAN 3: SETUP GUI DAN STYLING ===
 # Bagian ini mengatur jendela utama dan mendefinisikan fungsi untuk styling elemen GUI.
 
@@ -112,26 +125,64 @@ frame_exit = tk.Frame(root, bg="#e0e0e0", width=150)
 frame_exit.pack(side="right", fill="y")
 
 # Fungsi untuk beralih antar frame
+def tampilkan_petunjuk():
+    """Menampilkan frame petunjuk dan menyembunyikan frame lain."""
+    for frame in [frame_enkripsi, frame_dekripsi, frame_rangkuman]:
+        frame.pack_forget()
+    frame_petunjuk.pack(fill="both", expand=True, padx=25, pady=25)
+
 def tampilkan_enkripsi():
-    """Menampilkan frame enkripsi dan menyembunyikan frame dekripsi."""
-    frame_dekripsi.pack_forget()
+    """Menampilkan frame enkripsi dan menyembunyikan frame lain."""
+    for frame in [frame_petunjuk, frame_dekripsi, frame_rangkuman]:
+        frame.pack_forget()
     frame_enkripsi.pack(fill="both", expand=True, padx=25, pady=25)
 
 def tampilkan_dekripsi():
-    """Menampilkan frame dekripsi dan menyembunyikan frame enkripsi."""
-    frame_enkripsi.pack_forget()
+    """Menampilkan frame dekripsi dan menyembunyikan frame lain."""
+    for frame in [frame_petunjuk, frame_enkripsi, frame_rangkuman]:
+        frame.pack_forget()
     frame_dekripsi.pack(fill="both", expand=True, padx=25, pady=25)
 
+def tampilkan_rangkuman():
+    """Menampilkan frame rangkuman dan menyembunyikan frame lain."""
+    for frame in [frame_petunjuk, frame_enkripsi, frame_dekripsi]:
+        frame.pack_forget()
+    frame_rangkuman.pack(fill="both", expand=True, padx=25, pady=25)
+
 # Sidebar menu
+history = []  # Daftar untuk menyimpan riwayat operasi
+btn_petunjuk_menu = tk.Button(frame_menu, text="Petunjuk", command=tampilkan_petunjuk)
+style_button(btn_petunjuk_menu, bg="#ffffff", fg="#000000")
+btn_petunjuk_menu.pack(pady=20, padx=10, fill="x")
+
 btn_enkripsi_menu = tk.Button(frame_menu, text="Enkripsi", command=tampilkan_enkripsi)
 style_button(btn_enkripsi_menu, bg="#ffffff", fg="#000000")
-btn_enkripsi_menu.pack(pady=20, padx=10, fill="x")
+btn_enkripsi_menu.pack(pady=10, padx=10, fill="x")
 
 btn_dekripsi_menu = tk.Button(frame_menu, text="Dekripsi", command=tampilkan_dekripsi)
 style_button(btn_dekripsi_menu, bg="#ffffff", fg="#000000")
 btn_dekripsi_menu.pack(pady=10, padx=10, fill="x")
 
-# === BAGIAN 4: FRAME ENKRIPSI ===
+btn_rangkuman_menu = tk.Button(frame_menu, text="Rangkuman", command=tampilkan_rangkuman)
+style_button(btn_rangkuman_menu, bg="#ffffff", fg="#000000")
+btn_rangkuman_menu.pack(pady=10, padx=10, fill="x")
+
+# === BAGIAN 4: FRAME PETUNJUK ===
+# Bagian ini mengatur tata letak untuk halaman petunjuk.
+
+frame_petunjuk = tk.Frame(frame_konten, bg="#ffffff")
+
+tk.Label(frame_petunjuk, text="PETUNJUK PENGGUNAAN", font=font_title, fg="#000000", bg="#ffffff").pack(pady=20)
+tk.Label(frame_petunjuk, text="1. Pilih 'Enkripsi' untuk mengenkripsi teks.\n"
+                             "   - Masukkan plaintext, konversi ke biner, lalu gunakan kunci biner untuk enkripsi.\n"
+                             "2. Pilih 'Dekripsi' untuk mendekripsi teks.\n"
+                             "   - Masukkan ciphertext dan kunci biner untuk mendapatkan teks asli.\n"
+                             "3. Gunakan tombol 'Salin ke Clipboard' untuk menyalin hasil.\n"
+                             "4. Lihat 'Rangkuman' untuk riwayat operasi.\n"
+                             "Catatan: Pastikan input biner hanya berisi 0 dan 1, dan panjang ciphertext kelipatan 8 bit.",
+        font=font_label, fg="#333333", bg="#ffffff", justify="left").pack(pady=20, padx=20)
+
+# === BAGIAN 5: FRAME ENKRIPSI ===
 # Bagian ini mengatur tata letak dan logika untuk frame enkripsi.
 
 frame_enkripsi = tk.Frame(frame_konten, bg="#ffffff")
@@ -165,6 +216,7 @@ def konversi_ke_biner():
     entry_plain_biner.delete(0, tk.END)
     entry_plain_biner.insert(0, biner)
     time_label_biner.config(text=f"Waktu konversi ke biner: {end_time - start_time:.6f} detik")
+    log_operation("Konversi", teks, biner, end_time - start_time)
 
 def enkripsi():
     """Melakukan enkripsi XOR dan menampilkan waktu proses."""
@@ -183,6 +235,7 @@ def enkripsi():
     entry_cipher_biner.delete(0, tk.END)
     entry_cipher_biner.insert(0, cipher)
     time_label_enkripsi.config(text=f"Waktu enkripsi: {end_time - start_time:.6f} detik")
+    log_operation("Enkripsi", pesan_biner, cipher, end_time - start_time)
 
 tk.Label(frame_enkripsi, text="Plaintext:", bg="#ffffff", fg="#333333", font=font_label).pack(anchor="w", pady=(10,3))
 entry_plaintext.pack(pady=3)
@@ -213,7 +266,7 @@ btn_clear_enkripsi = tk.Button(frame_enkripsi, text="Bersihkan Semua", command=c
 style_button(btn_clear_enkripsi, bg="#ffcccc", fg="#000000")
 btn_clear_enkripsi.pack(pady=10)
 
-# === BAGIAN 5: FRAME DEKRIPSI ===
+# === BAGIAN 6: FRAME DEKRIPSI ===
 # Bagian ini mengatur tata letak dan logika untuk frame dekripsi.
 
 frame_dekripsi = tk.Frame(frame_konten, bg="#ffffff")
@@ -251,6 +304,7 @@ def dekripsi():
     entry_hasil_teks.delete(0, tk.END)
     entry_hasil_teks.insert(0, hasil)
     time_label_dekripsi.config(text=f"Waktu dekripsi: {end_time - start_time:.6f} detik")
+    log_operation("Dekripsi", cipher_biner, hasil, end_time - start_time)
 
 tk.Label(frame_dekripsi, text="Ciphertext (biner):", bg="#ffffff", fg="#333333", font=font_label).pack(anchor="w", pady=(10,3))
 entry_cipher_input.pack(pady=3)
@@ -273,8 +327,17 @@ btn_clear_dekripsi = tk.Button(frame_dekripsi, text="Bersihkan Semua", command=c
 style_button(btn_clear_dekripsi, bg="#ffcccc", fg="#000000")
 btn_clear_dekripsi.pack(pady=10)
 
-# === BAGIAN 6: MAIN LOOP ===
-# Bagian ini memulai aplikasi dengan menampilkan frame enkripsi sebagai default.
+# === BAGIAN 7: FRAME RANGKUMAN ===
+# Bagian ini mengatur tata letak untuk halaman rangkuman.
 
-tampilkan_enkripsi()
+frame_rangkuman = tk.Frame(frame_konten, bg="#ffffff")
+
+tk.Label(frame_rangkuman, text="RANGKUMAN PROSES", font=font_title, fg="#000000", bg="#ffffff").pack(pady=20)
+summary_text = tk.Text(frame_rangkuman, height=20, width=80, bg="#f0f0f0", font=font_label)
+summary_text.pack(pady=10, padx=20)
+
+# === BAGIAN 8: MAIN LOOP ===
+# Bagian ini memulai aplikasi dengan menampilkan frame petunjuk sebagai default.
+
+tampilkan_petunjuk()
 root.mainloop()
