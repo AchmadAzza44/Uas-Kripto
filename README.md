@@ -44,8 +44,8 @@ Untuk menjalankan aplikasi ini, Anda memerlukan:
 
 1. **Clone atau Unduh Repositori**:
    ```bash
-   git clone <URL_REPOSITORI>
-   cd <NAMA_FOLDER>
+   git clone <https://github.com/AchmadAzza44/Uas-Kripto>
+   cd <uas kripto>
    ```
 
 2. **Pastikan Python Terinstal**:
